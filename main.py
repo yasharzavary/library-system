@@ -35,7 +35,13 @@ def decchangecolor(event):
 
 def dlchangekey(event):
     deletekey.config(bg="#ffffff")
+# -----------------------------------------
+# find key button change color functions
+def fecchangecolor(event):
+    findkey.config(bg="#DCDCDC")
 
+def flchangekey(event):
+    findkey.config(bg="#ffffff")
 
 # my new book function
 def pushkey(event):
@@ -142,6 +148,7 @@ def delete_book(event):
                     messagebox.showerror("error","we don't have such book")
             except Error as err:
                 print(err)
+                
         delidroot=Tk()
         delidroot.geometry("%dx%d+%d+%d"%(250,150,100,500))
         delidlabel=Label(master=delidroot,text="record id:")
@@ -157,6 +164,8 @@ def delete_book(event):
     def searchanddelete():
         pass
     optionroot=Tk()
+    optionroot.title("delete book")
+    optionroot.iconbitmap("delete.ico")
     optionroot.geometry("%dx%d"%(400,100))
     havebutton=Button(master=optionroot,text="delete with record id",fg="#000000",command=delwithid)
     havebutton.grid(row=1,column=1,padx=50,pady=30)
@@ -165,7 +174,33 @@ def delete_book(event):
     donothave.grid(row=1,column=2)
     
     optionroot.mainloop()
-
+# find with id
+def findwithid(event):
+    def finding():
+        ifind=True
+        bid=int(identery.get())
+        with Connect(user="root", password="Yasharzavary360", host="127.0.0.8", database="library") as conn:
+                mysq=conn.cursor()
+                mysq.execute("select * from book")
+                for i in mysq.fetchall():
+                    if i[0]==bid:
+                        ifind=False
+                        messagebox.showinfo("result",f"id:{i[0]}\tguidenum:{i[1]}\tbooksubject:{i[2]}\twritername:{i[3]}//writerinfo:{i[4]}")
+                conn.commit()
+        if ifind:
+            messagebox.showerror("result","we don't have such book")
+    findroot=Tk()
+    findroot.title("find with id")
+    findroot.iconbitmap("find.ico")
+    findroot.geometry("%dx%d"%(200,100))
+    flabel=Label(master=findroot,text="id for search: ")
+    flabel.grid(row=0,column=0)
+    identery=Entry(master=findroot)
+    identery.grid(row=0,column=1)
+    findbutton=Button(master=findroot,text="find",command=finding)
+    findbutton.grid(row=1,column=0)
+    
+    findroot.mainloop()
 # my add key
 addkey=Button(master=mainroot, text="new book", fg="#000000", bg="#ffffff",width=10,cursor="plus")
 addkey.bind("<Enter>",ecchangecolor)
@@ -180,6 +215,12 @@ deletekey.bind("<Leave>",dlchangekey)
 deletekey.bind("<Button>",delete_book)
 deletekey.grid(row=2,column=0,padx=100)
 
+# my fing key
+findkey=Button(master=mainroot, text="find with id",fg="#000000", bg="#ffffff",width=10,cursor="target")
+findkey.bind("<Enter>",fecchangecolor)
+findkey.bind("<Leave>",flchangekey)
+findkey.bind("<Button>",findwithid)
+findkey.grid(row=3,column=0,padx=100)
 mainroot.mainloop()
 
 
