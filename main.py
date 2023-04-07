@@ -1,14 +1,13 @@
 from tkinter import *
 from tkinter import messagebox
 from mysql.connector import Connect, Error
-import re, string
+import re
 
 # my main root
 mainroot=Tk()
 mainroot.resizable(width=0,height=0)
 mainroot.title("library")
 mainroot.iconbitmap("mainroot.ico")
-
 
 w=300
 h=300
@@ -17,7 +16,6 @@ sh=mainroot.winfo_screenheight()
 x=(sw/2)-(w/2)
 y=(sh/2)-(h/2)
 mainroot.geometry("%dx%d+%d+%d"%(w,h,x,y))
-
 
 # welcome message
 wellcomelabel=Label(master=mainroot, text="wellcome:",fg="#000000",font=("Tahoma",10))  
@@ -34,19 +32,31 @@ def lchangekey(event):
 
 # my new book function
 def pushkey(event):
-    done=False
     def errorhapend(message):
         messagebox.showerror("Error", message)
         return False      
     def controlAndAdd(event):
+        nameOfTheBook=nameentry.get()
+        gnum=gentry.get()
+        wname=writerentry.get()
+        winfo=winfoentry.get()
         global newbookid, done
         def control():
-            if nameentry.get()=="" or gentry.get()=="" or writerentry.get()=="" or winfoentry.get()=="":
+            if nameOfTheBook=="" or gnum=="" or wname=="" or winfo=="":
                 return errorhapend("slots can't be empty")
-            elif re.search(r"[0-9]",writerentry.get()):
+            elif re.search(r"[0-9]",wname):
                 return errorhapend("writer name can't have numbers")    
-            elif re.search(r"[^0-9]",gentry.get()):
+            elif re.search(r"[^0-9]",gnum):
                 return errorhapend("guide number only can have numbers")
+            with Connect(user="root", password="Yasharzavary360", host="127.0.0.8", database="library") as conn:
+                mysq=conn.cursor()
+                mysq.execute("select * from book")
+                for i in mysq.fetchall():
+                    if i[1]==gnum:
+                        return errorhapend("guide number can't be same")
+                    elif i[2]==nameOfTheBook and i[3]==wname and i[4]==winfo:
+                        return errorhapend("we have that book")
+                conn.commit()
             return True
            
         if control() == True:
@@ -62,7 +72,6 @@ def pushkey(event):
                 messagebox.showinfo("👁‍🗨","book added succesfully")
             except Error as err:
                 print(err)
-            done=True
                 
     addroot=Tk()
     addroot.title("add new book")
@@ -99,9 +108,7 @@ def pushkey(event):
     
     # my control and add part
     okbutton.bind("<Button>", controlAndAdd)
-    if done:
-        addroot.destroy()
-    
+
     addroot.mainloop()
 
 # my add key
@@ -111,6 +118,8 @@ addkey.bind("<Leave>",lchangekey)
 addkey.bind("<Button>",pushkey)
 addkey.grid(row=1,column=0, padx=100)
 
+# my delete key
+# deletekey=Button(master=mainroot, text="delete
 
 mainroot.mainloop()
 
