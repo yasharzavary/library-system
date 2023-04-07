@@ -3,6 +3,7 @@ from tkinter import messagebox
 from mysql.connector import Connect, Error
 import re
 
+shown=1
 # my main root
 mainroot=Tk()
 mainroot.resizable(width=0,height=0)
@@ -42,7 +43,13 @@ def fecchangecolor(event):
 
 def flchangekey(event):
     findkey.config(bg="#ffffff")
+# -----------------------------------------
+# show key button change color functions
+def secchangecolor(event):
+    showkey.config(bg="#DCDCDC")
 
+def slchangekey(event):
+    showkey.config(bg="#ffffff")
 # my new book function
 def pushkey(event):
     def errorhapend(message):
@@ -201,6 +208,25 @@ def findwithid(event):
     findbutton.grid(row=1,column=0)
     
     findroot.mainloop()
+# show all books
+def showbooks(event):
+    def show(bid,gname,name,wname,winfo):
+        global shown
+        templabel=Label(master=showroot,text=f"id:{bid} / gnumber:{gname} / name:{name} / writer:{wname} / info:{winfo}")
+        templabel.grid(row=shown,column=0)
+        shown+=1
+    showroot=Tk()
+    showroot.title("all books")
+    showroot.iconbitmap("show.ico")
+    showroot.geometry("%dx%d+%d+%d"%(500,100,500,100))
+    with Connect(host="127.0.0.8",user="root",password="Yasharzavary360",database="library") as conn:
+        mysq=conn.cursor()
+        mysq.execute("select * from book")
+        for i in mysq.fetchall():
+            show(i[0],i[1],i[2],i[3],i[4])     
+        conn.commit()
+    showroot.mainloop()
+
 # my add key
 addkey=Button(master=mainroot, text="new book", fg="#000000", bg="#ffffff",width=10,cursor="plus")
 addkey.bind("<Enter>",ecchangecolor)
@@ -221,7 +247,16 @@ findkey.bind("<Enter>",fecchangecolor)
 findkey.bind("<Leave>",flchangekey)
 findkey.bind("<Button>",findwithid)
 findkey.grid(row=3,column=0,padx=100)
-mainroot.mainloop()
 
+
+# show all book key
+showkey=Button(master=mainroot, text="show books",fg="#000000",bg="#ffffff",width=10,cursor="dotbox")
+showkey.bind("<Enter>",secchangecolor)
+showkey.bind("<Leave>",slchangekey)
+showkey.bind("<Button>",showbooks)
+showkey.grid(row=4,column=0,padx=100)
+
+
+mainroot.mainloop()
 
 
