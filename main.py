@@ -29,6 +29,13 @@ def lchangekey(event):
     addkey.config(bg="#ffffff")
     
 # -----------------------------------------
+# delete key button change color functions
+def decchangecolor(event):
+    deletekey.config(bg="#DCDCDC")
+
+def dlchangekey(event):
+    deletekey.config(bg="#ffffff")
+
 
 # my new book function
 def pushkey(event):
@@ -65,7 +72,10 @@ def pushkey(event):
                     mysq=conn.cursor()
                     mysq.execute("select max(record_id) from book")
                     for i in mysq:
-                        newbook=i[0]+1
+                        if i[0]!=None:
+                            newbook=i[0]+1
+                        else:
+                            newbook=1
                     mysq.execute("""insert into book(record_id, guidenum, booksubject, writername, writerinfo)
                                     values(%s,%s,%s,%s,%s)""",(newbook,int(gentry.get()),nameentry.get(),writerentry.get(),winfoentry.get()))
                     conn.commit()
@@ -76,7 +86,7 @@ def pushkey(event):
     addroot=Tk()
     addroot.title("add new book")
     addroot.iconbitmap("newbook.ico")
-    addroot.geometry("%dx%d+%d+%d"%(400,400,x+300,y))
+    addroot.geometry("%dx%d+%d+%d"%(400,200,x+300,y))
     # welcome message for new book part
     welcomelabel=Label(master=addroot, text="please fill info for add new book",font=("Tahoma",10)) 
     welcomelabel.grid(row=0, column=0)
@@ -110,6 +120,51 @@ def pushkey(event):
     okbutton.bind("<Button>", controlAndAdd)
 
     addroot.mainloop()
+# delete one book
+def delete_book(event):
+    # delete with book id
+    def delwithid():
+        def delbook():
+            wehave=False
+            bid=int(identery.get())
+            try:
+                with Connect(user="root", password="Yasharzavary360", host="127.0.0.8", database="library") as conn:
+                    mysq=conn.cursor()
+                    mysq.execute("select * from book")
+                    for i in mysq.fetchall():
+                        if bid==i[0]:
+                            wehave=True
+                            mysq.execute("delete from book where record_id="+str(bid))       
+                    conn.commit()
+                if wehave:
+                    messagebox.showinfo("ok!","book deleted")
+                else:
+                    messagebox.showerror("error","we don't have such book")
+            except Error as err:
+                print(err)
+        delidroot=Tk()
+        delidroot.geometry("%dx%d+%d+%d"%(250,150,100,500))
+        delidlabel=Label(master=delidroot,text="record id:")
+        delidlabel.grid(row=0,column=0,padx=10,pady=10)
+        
+        identery=Entry(master=delidroot)
+        identery.grid(row=0,column=1)
+        
+        delokbutton=Button(master=delidroot,text="delete",command=delbook)
+        delokbutton.grid(row=1,column=0)
+        
+        delidroot.mainloop()
+    def searchanddelete():
+        pass
+    optionroot=Tk()
+    optionroot.geometry("%dx%d"%(400,100))
+    havebutton=Button(master=optionroot,text="delete with record id",fg="#000000",command=delwithid)
+    havebutton.grid(row=1,column=1,padx=50,pady=30)
+    
+    donothave=Button(master=optionroot,text="search by name and delete",fg="#000000",command=searchanddelete)
+    donothave.grid(row=1,column=2)
+    
+    optionroot.mainloop()
 
 # my add key
 addkey=Button(master=mainroot, text="new book", fg="#000000", bg="#ffffff",width=10,cursor="plus")
@@ -119,7 +174,11 @@ addkey.bind("<Button>",pushkey)
 addkey.grid(row=1,column=0, padx=100)
 
 # my delete key
-# deletekey=Button(master=mainroot, text="delete
+deletekey=Button(master=mainroot, text="delete book", fg="#000000", bg="#ffffff",width=10,cursor="pirate")
+deletekey.bind("<Enter>",decchangecolor)
+deletekey.bind("<Leave>",dlchangekey)
+deletekey.bind("<Button>",delete_book)
+deletekey.grid(row=2,column=0,padx=100)
 
 mainroot.mainloop()
 
