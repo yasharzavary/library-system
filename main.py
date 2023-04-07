@@ -1,8 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from mysql.connector import Connect, Error
-
-newbookid=0
+import re, string
 
 # my main root
 mainroot=Tk()
@@ -35,7 +34,36 @@ def lchangekey(event):
 
 # my new book function
 def pushkey(event):
-    global newbookid
+    done=False
+    def errorhapend(message):
+        messagebox.showerror("Error", message)
+        return False      
+    def controlAndAdd(event):
+        global newbookid, done
+        def control():
+            if nameentry.get()=="" or gentry.get()=="" or writerentry.get()=="" or winfoentry.get()=="":
+                return errorhapend("slots can't be empty")
+            elif re.search(r"[0-9]",writerentry.get()):
+                return errorhapend("writer name can't have numbers")    
+            elif re.search(r"[^0-9]",gentry.get()):
+                return errorhapend("guide number only can have numbers")
+            return True
+           
+        if control() == True:
+            try:
+                with Connect(user="root", password="Yasharzavary360", host="127.0.0.8", database="library") as conn:
+                    mysq=conn.cursor()
+                    mysq.execute("select max(record_id) from book")
+                    for i in mysq:
+                        newbook=i[0]+1
+                    mysq.execute("""insert into book(record_id, guidenum, booksubject, writername, writerinfo)
+                                    values(%s,%s,%s,%s,%s)""",(newbook,int(gentry.get()),nameentry.get(),writerentry.get(),winfoentry.get()))
+                    conn.commit()
+                messagebox.showinfo("👁‍🗨","book added succesfully")
+            except Error as err:
+                print(err)
+            done=True
+                
     addroot=Tk()
     addroot.title("add new book")
     addroot.iconbitmap("newbook.ico")
@@ -65,8 +93,15 @@ def pushkey(event):
     winfoentry=Entry(master=addroot)  
     winfoentry .grid(row=4,column=1) 
          
+    # mine ok button that send our information to adding to database
     okbutton=Button(master=addroot,text="OK",fg="#000000",font=("Tahoma",10))
     okbutton.grid(row=5,column=0)
+    
+    # my control and add part
+    okbutton.bind("<Button>", controlAndAdd)
+    if done:
+        addroot.destroy()
+    
     addroot.mainloop()
 
 # my add key
