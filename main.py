@@ -1,3 +1,4 @@
+# created by=yashar zavary rezaie
 from tkinter import *
 from tkinter import messagebox
 from mysql.connector import Connect, Error
@@ -169,7 +170,7 @@ def delete_book(event):
         
         delidroot.mainloop()
     def searchanddelete():
-        pass
+        showbooks(None)
     optionroot=Tk()
     optionroot.title("delete book")
     optionroot.iconbitmap("delete.ico")
@@ -177,7 +178,7 @@ def delete_book(event):
     havebutton=Button(master=optionroot,text="delete with record id",fg="#000000",command=delwithid)
     havebutton.grid(row=1,column=1,padx=50,pady=30)
     
-    donothave=Button(master=optionroot,text="search by name and delete",fg="#000000",command=searchanddelete)
+    donothave=Button(master=optionroot,text="show books",fg="#000000",command=searchanddelete)
     donothave.grid(row=1,column=2)
     
     optionroot.mainloop()
